@@ -1,6 +1,6 @@
 import { Editor } from "@/components/Editor";
 
-// This is the Fastest, Most Light Version of the Site — it's the fastest website in the world (as far as I could find)
+// This is the Fastest, Most Light Version of the Site — it's the fastest website in the world (as far as I could find) 
 
 export default function Home() {
   return (
