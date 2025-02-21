@@ -129,10 +129,10 @@ const editorConfig = {
     },
     list: {
       nested: {
-        listitem: "list-none",
+        listitem: "",
       },
       ol: "list-decimal list-outside ml-8",
-      ul: "list-disc list-outside ml-8",
+      ul: "list-outside ml-8 [&>li]:text-lg [&>li>ul]:text-base [&>li:not(:has(ul))]:list-big-disc [&>li>ul>li:not(:has(ul))]:list-circle [&>li>ul>li>ul>li:not(:has(ul))]:list-square [&>li>ul>li>ul>li>ul>li]:list-triangle",
       listitem: "relative",
     },
   },
@@ -158,7 +158,7 @@ export function Editor() {
             <RichTextPlugin
               contentEditable={
                 <ContentEditable 
-                  className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_p:hover]:before:content-['→'] [&_p]:before:absolute [&_p]:before:left-[-1.5rem] [&_p]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_p]:before:transition-opacity [&_p]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
+                  className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
               }
               placeholder={
                 <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
