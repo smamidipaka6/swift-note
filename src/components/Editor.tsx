@@ -4,6 +4,78 @@ import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { ListItemNode, ListNode } from "@lexical/list";
+import {
+  FORMAT_TEXT_COMMAND,
+  LexicalEditor,
+  COMMAND_PRIORITY_NORMAL,
+  createCommand,
+  LexicalCommand,
+  KEY_ENTER_COMMAND,
+  $getSelection,
+  $isRangeSelection,
+} from "lexical";
+import {
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+} from "@lexical/list";
+import { useEffect } from "react";
+
+const STRIKETHROUGH_SHORTCUT: LexicalCommand<KeyboardEvent> = createCommand();
+
+function ShortcutPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    // Register command to handle Enter key in empty list items
+    editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      () => {
+        const selection = $getSelection();
+        if (!selection || !$isRangeSelection(selection)) return false;
+
+        const node = selection.anchor.getNode();
+        const parent = node.getParent();
+
+        // Check if we're in a list item and it's empty
+        if (
+          parent?.getType() === "listitem" &&
+          node.getTextContent().trim() === ""
+        ) {
+          editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+          return true;
+        }
+        return false;
+      },
+      COMMAND_PRIORITY_NORMAL
+    );
+
+    function handleKeyDown(event: KeyboardEvent) {
+      // Strikethrough shortcut
+      if (event.metaKey && event.shiftKey && event.key.toLowerCase() === "x") {
+        event.preventDefault();
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
+      }
+
+      // Bullet list shortcut (Cmd+Shift+8 or Cmd+*)
+      if (event.metaKey && event.shiftKey && event.key === "8") {
+        event.preventDefault();
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      }
+    }
+
+    // Add event listener to the window
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [editor]);
+
+  return null;
+}
 
 function LexicalErrorBoundary({ children }: { children: React.ReactNode }) {
   return <div>{children}</div>;
@@ -21,18 +93,23 @@ const editorConfig = {
       underline: "underline",
       strikethrough: "line-through",
     },
+    list: {
+      ul: "list-disc list-inside",
+      ol: "list-decimal list-inside",
+    },
   },
+  nodes: [ListNode, ListItemNode],
 };
 
 export function Editor() {
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
+    <div className="w-full max-w-2xl mx-auto">
       {/* Title input */}
-      <div className="rounded-lg bg-background">
+      <div className="mt-14 rounded-lg bg-background">
         <input
           type="text"
           placeholder="Enter title..."
-          className="w-full pl-8 pt-12 px-4 py-3 text-3xl font-bold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
+          className="w-full pt-12 px-4 text-3xl font-bold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
@@ -52,6 +129,8 @@ export function Editor() {
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin />
+            <ListPlugin />
+            <ShortcutPlugin />
           </div>
         </div>
       </LexicalComposer>
