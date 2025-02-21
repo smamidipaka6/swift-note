@@ -119,10 +119,10 @@ export function Editor() {
           <div className="font-sans font-medium text-lg text-foreground relative">
             <RichTextPlugin
               contentEditable={
-                <ContentEditable className="p-4 min-h-[150px] outline-none focus:outline-none leading-[normal]" />
+                <ContentEditable className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-1 [&_p]:my-1 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_p:hover]:before:content-['→'] [&_p]:before:absolute [&_p]:before:left-[-1.5rem] [&_p]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_p]:before:transition-opacity [&_p]:before:text-muted-foreground" />
               }
               placeholder={
-                <div className="absolute left-4 top-6 text-muted-foreground pointer-events-none leading-[normal]">
+                <div className="absolute left-8 top-6 text-muted-foreground pointer-events-none leading-[normal]">
                   Start typing your note...
                 </div>
               }
