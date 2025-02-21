@@ -83,7 +83,6 @@ function ShortcutPlugin() {
               isInList = true;
               break;
             }
-            parent = parent.getParent();
           }
 
           if (isInList) {
