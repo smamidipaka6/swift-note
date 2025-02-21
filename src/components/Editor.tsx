@@ -20,7 +20,7 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 // const STRIKETHROUGH_SHORTCUT: LexicalCommand<KeyboardEvent> = createCommand();
 
@@ -139,39 +139,73 @@ const editorConfig = {
   nodes: [ListNode, ListItemNode],
 };
 
-export function Editor() {
+function EditorContent({ titleInputRef }: { titleInputRef: React.RefObject<HTMLInputElement | null> }) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    const handleTitleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && document.activeElement === titleInputRef.current) {
+        e.preventDefault();
+        editor.focus();
+      }
+    };
+
+    // Add event listener to the title input
+    titleInputRef.current?.addEventListener('keydown', handleTitleKeyDown);
+
+    return () => {
+      // Clean up event listener
+      titleInputRef.current?.removeEventListener('keydown', handleTitleKeyDown);
+    };
+  }, [editor, titleInputRef]);
+
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="rounded-lg bg-background flex-1 flex flex-col">
+      <div className="font-sans font-medium text-md text-foreground/80 relative flex-1 flex flex-col">
+        <RichTextPlugin
+          contentEditable={
+            <ContentEditable 
+              className="p-4 pl-8 flex-1 outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
+          }
+          placeholder={
+            <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
+              Start typing your note...
+            </div>
+          }
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+        <HistoryPlugin />
+        <ListPlugin />
+        <ShortcutPlugin />
+      </div>
+    </div>
+  );
+}
+
+export function Editor() {
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Focus the title input on mount
+    titleInputRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="w-full max-w-2xl mx-auto min-h-screen flex flex-col">
       {/* Title input */}
       <div className="mt-14 rounded-lg bg-background">
         <input
+          ref={titleInputRef}
           type="text"
           placeholder="Enter title..."
+          autoFocus
           className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground/80 placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Main editor */}
       <LexicalComposer initialConfig={editorConfig}>
-        <div className="rounded-lg bg-background">
-          <div className="font-sans font-medium text-md text-foreground/80 relative">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable 
-                  className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
-              }
-              placeholder={
-                <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
-                  Start typing your note...
-                </div>
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <HistoryPlugin />
-            <ListPlugin />
-            <ShortcutPlugin />
-          </div>
-        </div>
+        <EditorContent titleInputRef={titleInputRef} />
       </LexicalComposer>
     </div>
   );
