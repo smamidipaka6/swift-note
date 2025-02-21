@@ -9,10 +9,7 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ListItemNode, ListNode } from "@lexical/list";
 import {
   FORMAT_TEXT_COMMAND,
-  LexicalEditor,
   COMMAND_PRIORITY_NORMAL,
-  createCommand,
-  LexicalCommand,
   KEY_ENTER_COMMAND,
   $getSelection,
   $isRangeSelection,
@@ -23,7 +20,7 @@ import {
 } from "@lexical/list";
 import { useEffect } from "react";
 
-const STRIKETHROUGH_SHORTCUT: LexicalCommand<KeyboardEvent> = createCommand();
+// const STRIKETHROUGH_SHORTCUT: LexicalCommand<KeyboardEvent> = createCommand();
 
 function ShortcutPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -109,7 +106,7 @@ export function Editor() {
         <input
           type="text"
           placeholder="Enter title..."
-          className="w-full pt-12 px-4 text-3xl font-bold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
+          className="w-full pt-12 px-8 text-3xl font-bold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
