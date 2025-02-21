@@ -1,0 +1,116 @@
+# Node.js / PNPM
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Output (Next.js / React)
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Dependency Lock Files (optional, include if you want to ignore them)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+.apdisk
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Editor-Specific (VS Code, Cursor, etc.)
+.vscode/
+!.vscode/extensions.json  # Keep extensions recommendations if desired
+.cursor/                 # Cursor editor workspace files (if any)
+*.code-workspace
+
+# JetBrains IDEs (if you use them)
+.idea/
+*.iml
+modules.xml
+.idea_modules/
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Build Tools / Cache
+.cache/                  # Parcel, Vite, or other build tool caches
+.turbo/                  # Turborepo cache (if used)
+.eslintcache
+.prettierrc.cache
+stylelintcache
+
+# Testing
+coverage/
+*.lcov
+test-results/
+junit.xml
+
+# Next.js Specific
+.next/
+*.tsbuildinfo
+.next/cache/
+
+# Tailwind CSS / Shadcn / Aceternity / Magic UI Generated Files
+# (No specific generated files by default, but include custom outputs if any)
+public/assets/          # If assets are generated here
+static/                 # If static files are built here
+
+# Miscellaneous
+*.pid
+*.seed
+*.pid.lock
+*.key
+*.pem
+*.cert
+*.pub
+*.priv
+
+# Debug / Diagnostic Files
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+*.prof
+*.trace
+
+# Personal Notes / Docs
+*.mdx  # Optional: ignore docs if auto-generated
+notes/
