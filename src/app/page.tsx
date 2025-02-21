@@ -2,6 +2,8 @@ import { Editor } from "@/components/Editor";
 
 // This is the Fastest, Most Light Version of the Site — it's the fastest website in the world (as far as I could find) 
 
+console.log("Testing - Light Version")
+
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col">
