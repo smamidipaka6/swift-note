@@ -18,6 +18,7 @@ import {
 } from "lexical";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
 import { useEffect, useRef } from "react";
@@ -62,6 +63,12 @@ function ShortcutPlugin() {
       if (event.metaKey && event.shiftKey && event.key === "8") {
         event.preventDefault();
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      }
+
+      // Numbered list shortcut (Cmd+Shift+9 or Cmd+()
+      if (event.metaKey && event.shiftKey && event.key === "9") {
+        event.preventDefault();
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
       }
 
       // Handle Tab and Shift+Tab for list indentation
@@ -131,7 +138,7 @@ const editorConfig = {
       nested: {
         listitem: "",
       },
-      ol: "list-decimal list-outside ml-8",
+      ol: "list-outside ml-8 [&>li]:text-lg [&>li>ol]:text-base [&>li:not(:has(ol))]:list-decimal [&>li>ol>li:not(:has(ol))]:list-[lower-alpha] [&>li>ol>li>ol>li:not(:has(ol))]:list-[lower-roman] [&>li>ol>li>ol>li>ol>li:not(:has(ol))]:list-[upper-alpha] [&>li>ol>li>ol>li>ol>li>ol>li:not(:has(ol))]:list-[upper-roman] [&>li>ol>li>ol>li>ol>li>ol>li>ol>li]:list-decimal",
       ul: "list-outside ml-8 [&>li]:text-lg [&>li>ul]:text-base [&>li:not(:has(ul))]:list-big-disc [&>li>ul>li:not(:has(ul))]:list-circle [&>li>ul>li>ul>li:not(:has(ul))]:list-square [&>li>ul>li>ul>li>ul>li]:list-triangle",
       listitem: "relative",
     },
