@@ -2,8 +2,6 @@ import { Editor } from "@/components/Editor";
 
 // This is the Fastest, Most Light Version of the Site — it's the fastest website in the world (as far as I could find) 
 
-console.log("Testing - Light Version")
-
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-background text-foreground flex flex-col">
@@ -14,7 +12,7 @@ export default function Home() {
       </div>
 
       <footer className="absolute bottom-0 w-full py-4 text-center text-sm text-muted-foreground">
-        Made with ❤️ by Sahit, Angan, and Cursor
+        SwiftNote Light - Made with ❤️ by Sahit, Angan, and Cursor
       </footer>
     </div>
   );
