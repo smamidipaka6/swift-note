@@ -78,11 +78,8 @@ function ShortcutPlugin() {
           
           // Check if we're in a list structure by traversing up the tree
           let isInList = false;
-          while (parent) {
-            if (parent.getType() === "listitem" || parent.getType() === "list") {
-              isInList = true;
-              break;
-            }
+          if (parent && (parent.getType() === "listitem" || parent.getType() === "list")) {
+            isInList = true;
           }
 
           if (isInList) {
