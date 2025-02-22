@@ -74,7 +74,7 @@ function ShortcutPlugin() {
           if (!selection || !$isRangeSelection(selection)) return;
 
           const node = selection.anchor.getNode();
-          let parent = node.getParent();
+          const parent = node.getParent();
           
           // Check if we're in a list structure by traversing up the tree
           let isInList = false;
