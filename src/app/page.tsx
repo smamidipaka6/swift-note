@@ -13,7 +13,7 @@ export default function Home() {
       </div>
 
       <footer className="absolute bottom-0 w-full py-4 text-center text-sm text-muted-foreground">
-        Made with ❤️ by Sahit, Angan, and Cursor
+        New Features: Dark Mode & Bullets! Made with ❤️ by Sahit, Angan, and Cursor
       </footer>
     </div>
   );
