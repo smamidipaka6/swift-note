@@ -78,12 +78,8 @@ function ShortcutPlugin() {
           
           // Check if we're in a list structure by traversing up the tree
           let isInList = false;
-          while (parent) {
-            if (parent.getType() === "listitem" || parent.getType() === "list") {
-              isInList = true;
-              break;
-            }
-            parent = parent.getParent();
+          if (parent && (parent.getType() === "listitem" || parent.getType() === "list")) {
+            isInList = true;
           }
 
           if (isInList) {
@@ -193,7 +189,7 @@ export function Editor() {
   return (
     <div className="w-full max-w-2xl mx-auto min-h-screen flex flex-col">
       {/* Title input */}
-      <div className="mt-14 rounded-lg bg-background">
+      <div className="mt-14 rounded-lg bg-background dark:bg-background">
         <input
           ref={titleInputRef}
           type="text"
