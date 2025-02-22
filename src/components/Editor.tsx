@@ -140,7 +140,7 @@ function EditorContent({ titleInputRef }: { titleInputRef: React.RefObject<HTMLI
 
   useEffect(() => {
     const handleTitleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && document.activeElement === titleInputRef.current) {
+      if ((e.key === 'Enter') && document.activeElement === titleInputRef.current) {
         e.preventDefault();
         editor.focus();
       }
@@ -157,7 +157,7 @@ function EditorContent({ titleInputRef }: { titleInputRef: React.RefObject<HTMLI
 
   return (
     <div className="rounded-lg bg-background flex-1 flex flex-col">
-      <div className="font-sans font-medium text-md text-foreground/80 relative flex-1 flex flex-col">
+      <div className="font-sans font-medium text-md text-foreground relative flex-1 flex flex-col">
         <RichTextPlugin
           contentEditable={
             <ContentEditable 
@@ -195,7 +195,7 @@ export function Editor() {
           type="text"
           placeholder="Enter title..."
           autoFocus
-          className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground/80 placeholder:text-muted-foreground"
+          className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
