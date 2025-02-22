@@ -102,18 +102,18 @@ export function Editor() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Title input */}
-      <div className="mt-14 rounded-lg bg-background">
+      <div className="mt-14 rounded-lg bg-background dark:bg-background">
         <input
           type="text"
           placeholder="Enter title..."
-          className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground/80 placeholder:text-muted-foreground"
+          className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Main editor */}
       <LexicalComposer initialConfig={editorConfig}>
         <div className="rounded-lg bg-background">
-          <div className="font-sans font-medium text-md text-foreground/80 relative">
+          <div className="font-sans font-medium text-md text-foreground relative">
             <RichTextPlugin
               contentEditable={
                 <ContentEditable className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-1 [&_p]:my-1 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_p:hover]:before:content-['→'] [&_p]:before:absolute [&_p]:before:left-[-1.5rem] [&_p]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_p]:before:transition-opacity [&_p]:before:text-muted-foreground" />
