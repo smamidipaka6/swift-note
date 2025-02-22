@@ -72,6 +72,12 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      listStyleType: {
+        'big-disc': 'disc',
+        'circle': 'circle',
+        'square': 'square',
+        'triangle': 'disclosure-closed',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

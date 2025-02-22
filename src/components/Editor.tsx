@@ -13,6 +13,8 @@ import {
   KEY_ENTER_COMMAND,
   $getSelection,
   $isRangeSelection,
+  INDENT_CONTENT_COMMAND,
+  OUTDENT_CONTENT_COMMAND,
 } from "lexical";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
@@ -61,6 +63,37 @@ function ShortcutPlugin() {
         event.preventDefault();
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
       }
+
+      // Handle Tab and Shift+Tab for list indentation
+      if (event.key === "Tab") {
+        // Prevent default tab behavior immediately
+        event.preventDefault();
+
+        editor.update(() => {
+          const selection = $getSelection();
+          if (!selection || !$isRangeSelection(selection)) return;
+
+          const node = selection.anchor.getNode();
+          let parent = node.getParent();
+          
+          // Check if we're in a list structure by traversing up the tree
+          let isInList = false;
+          if (parent && (parent.getType() === "listitem" || parent.getType() === "list")) {
+            isInList = true;
+          }
+
+          if (isInList) {
+            if (event.shiftKey) {
+              editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+            } else {
+              editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+            }
+          } else {
+            // If not in a list, insert tab character for regular indentation
+            selection.insertText("\t");
+          }
+        });
+      }
     }
 
     // Add event listener to the window
@@ -91,8 +124,12 @@ const editorConfig = {
       strikethrough: "line-through",
     },
     list: {
-      ul: "list-disc list-inside",
-      ol: "list-decimal list-inside",
+      nested: {
+        listitem: "",
+      },
+      ol: "list-decimal list-outside ml-8",
+      ul: "list-outside ml-8 [&>li]:text-lg [&>li>ul]:text-base [&>li:not(:has(ul))]:list-big-disc [&>li>ul>li:not(:has(ul))]:list-circle [&>li>ul>li>ul>li:not(:has(ul))]:list-square [&>li>ul>li>ul>li>ul>li]:list-triangle",
+      listitem: "relative",
     },
   },
   nodes: [ListNode, ListItemNode],
@@ -116,10 +153,11 @@ export function Editor() {
           <div className="font-sans font-medium text-md text-foreground relative">
             <RichTextPlugin
               contentEditable={
-                <ContentEditable className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-1 [&_p]:my-1 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_p:hover]:before:content-['→'] [&_p]:before:absolute [&_p]:before:left-[-1.5rem] [&_p]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_p]:before:transition-opacity [&_p]:before:text-muted-foreground" />
+                <ContentEditable 
+                  className="p-4 pl-8 min-h-[150px] outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
               }
               placeholder={
-                <div className="absolute left-8 top-6 text-muted-foreground pointer-events-none leading-[normal]">
+                <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
                   Start typing your note...
                 </div>
               }
