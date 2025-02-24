@@ -75,10 +75,13 @@ function ShortcutPlugin() {
 
           const node = selection.anchor.getNode();
           const parent = node.getParent();
-          
+
           // Check if we're in a list structure by traversing up the tree
           let isInList = false;
-          if (parent && (parent.getType() === "listitem" || parent.getType() === "list")) {
+          if (
+            parent &&
+            (parent.getType() === "listitem" || parent.getType() === "list")
+          ) {
             isInList = true;
           }
 
@@ -135,33 +138,39 @@ const editorConfig = {
   nodes: [ListNode, ListItemNode],
 };
 
-function EditorContent({ titleInputRef }: { titleInputRef: React.RefObject<HTMLInputElement | null> }) {
+function EditorContent({
+  titleInputRef,
+}: {
+  titleInputRef: React.RefObject<HTMLInputElement | null>;
+}) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
     const handleTitleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === 'Enter') && document.activeElement === titleInputRef.current) {
+      if (
+        e.key === "Enter" &&
+        document.activeElement === titleInputRef.current
+      ) {
         e.preventDefault();
         editor.focus();
       }
     };
 
     // Add event listener to the title input
-    titleInputRef.current?.addEventListener('keydown', handleTitleKeyDown);
+    titleInputRef.current?.addEventListener("keydown", handleTitleKeyDown);
 
     return () => {
       // Clean up event listener
-      titleInputRef.current?.removeEventListener('keydown', handleTitleKeyDown);
+      titleInputRef.current?.removeEventListener("keydown", handleTitleKeyDown);
     };
   }, [editor, titleInputRef]);
 
   return (
     <div className="rounded-lg bg-background flex-1 flex flex-col">
-      <div className="font-sans font-medium text-md text-foreground relative flex-1 flex flex-col">
+      <div className="font-sans font-medium text-lg leading-[loose] text-foreground relative flex-1 flex flex-col">
         <RichTextPlugin
           contentEditable={
-            <ContentEditable 
-              className="p-4 pl-8 flex-1 outline-none focus:outline-none leading-[normal] [&_p]:block [&_p]:py-0.5 [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
+            <ContentEditable className="leading-relaxed [&_p]:leading-relaxed [&_li]:leading-relaxed p-4 pl-8 flex-1 outline-none focus:outline-none [&_p]:block [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
           }
           placeholder={
             <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
