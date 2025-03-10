@@ -20,7 +20,7 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // const STRIKETHROUGH_SHORTCUT: LexicalCommand<KeyboardEvent> = createCommand();
 
@@ -170,7 +170,7 @@ function EditorContent({
       <div className="font-sans font-medium text-lg leading-[loose] text-foreground relative flex-1 flex flex-col">
         <RichTextPlugin
           contentEditable={
-            <ContentEditable className="leading-relaxed [&_p]:leading-relaxed [&_li]:leading-relaxed p-4 pl-8 flex-1 outline-none focus:outline-none [&_p]:block [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
+            <ContentEditable className="selection:bg-foreground selection:text-background leading-relaxed [&_p]:leading-relaxed [&_li]:leading-relaxed p-4 pl-8 flex-1 outline-none focus:outline-none [&_p]:block [&_p]:my-0 [&_p]:rounded [&_p]:relative [&_p]:transition-colors [&_li]:relative [&_li]:transition-colors [&_p:hover]:before:content-['→'] [&_li:not(:has(li:hover)):hover]:before:content-['→'] [&_p]:before:absolute [&_li]:before:absolute [&_p]:before:left-[-1.5rem] [&_li]:before:left-[-2.5rem] [&_p]:before:opacity-0 [&_li]:before:opacity-0 [&_p:hover]:before:opacity-50 [&_li:not(:has(li:hover)):hover]:before:opacity-50 [&_p]:before:transition-opacity [&_li]:before:transition-opacity [&_p]:before:text-muted-foreground [&_li]:before:text-muted-foreground [&[contenteditable]]:caret-foreground [&[contenteditable]]:relative [&[contenteditable]]:z-10" />
           }
           placeholder={
             <div className="absolute left-8 top-[18px] text-muted-foreground pointer-events-none leading-[normal]">
@@ -189,11 +189,19 @@ function EditorContent({
 
 export function Editor() {
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [titleEnterPressed, setTitleEnterPressed] = useState(false);
 
   useEffect(() => {
     // Focus the title input on mount
     titleInputRef.current?.focus();
   }, []);
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setTitleEnterPressed(true);
+      // The original event listener in EditorContent will handle focusing the editor
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto min-h-screen flex flex-col">
@@ -202,9 +210,10 @@ export function Editor() {
         <input
           ref={titleInputRef}
           type="text"
-          placeholder="Enter title..."
+          placeholder={titleEnterPressed ? "" : "Enter title..."}
           autoFocus
-          className="w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
+          className="selection:bg-foreground selection:text-background w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
+          onKeyDown={handleTitleKeyDown}
         />
       </div>
 
