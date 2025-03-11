@@ -3,9 +3,10 @@ import "./globals.css";
 
 // Vercel Deployment Tools/Analytics
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { ServiceWorkerManager } from "@/components/ServiceWorkerManager";
 
 export const metadata: Metadata = {
   title: "Swift Note Light",
@@ -27,6 +28,7 @@ export default function RootLayout({
           // disableTransitionOnChange
         >
           {children}
+          <ServiceWorkerManager />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
