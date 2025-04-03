@@ -7,29 +7,33 @@ import { Analytics } from "@vercel/analytics/react";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerManager } from "@/components/ServiceWorkerManager";
+import { NotesProvider } from "@/contexts/NotesContext";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Swift Note Light",
   description: "Notion but fast — really fast",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+interface RootLayoutProps {
+  children: ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className="antialiased" suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          // disableTransitionOnChange
-        >
-          {children}
-          <ServiceWorkerManager />
-        </ThemeProvider>
+        <NotesProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            // disableTransitionOnChange
+          >
+            {children}
+            <ServiceWorkerManager />
+          </ThemeProvider>
+        </NotesProvider>
         <Analytics />
         <SpeedInsights />
       </body>
