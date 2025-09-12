@@ -32,7 +32,8 @@
     --radius: 0.5rem;
   }
   .dark {
-    --background: 0 0% 10%;
+    /* 9.8% lightness matches #191919 exactly to avoid 1-step mismatch with UA dark */
+    --background: 0 0% 9.8%;
     --foreground: 0 0% 83%;
 
     --card: 240 10% 3.9%;
@@ -64,8 +65,20 @@
   * {
     @apply border-border;
   }
+  html {
+    /* Match the viewport background to the design tokens to avoid edge mismatch */
+    @apply bg-background;
+    background-color: hsl(var(--background));
+  }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer base {
+  .dark html,
+  .dark body {
+    background-color: #191919 !important;
   }
 }
 
@@ -78,8 +91,6 @@
     scrollbar-width: none;
   }
 }
-
-
 
 @layer base {
   * {
