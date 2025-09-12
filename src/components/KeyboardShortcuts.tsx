@@ -136,6 +136,19 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
         </div>
         <span className="text-base text-foreground ml-4">Un-bullet</span>
       </div>
+
+      <div className="flex items-center justify-between py-3">
+        <div className="flex items-center space-x-2">
+          <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
+            {modifierKey}
+          </kbd>
+          <span>+</span>
+          <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
+            S
+          </kbd>
+        </div>
+        <span className="text-base text-foreground ml-4">Save</span>
+      </div>
     </div>
   );
 };

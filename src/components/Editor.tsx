@@ -227,7 +227,6 @@ function EditorContent({
 
 // Helper function to clean up old tab entries in localStorage
 function cleanupLocalStorage() {
-
   // Check if we've cleaned up recently (don't do this on every page load)
   const lastCleanup = localStorage.getItem(LAST_CLEANUP_KEY);
   const now = Date.now();
@@ -395,6 +394,25 @@ export function Editor() {
     }
   }, [saveStatus]);
 
+  // Effect to update document title when notes are loaded
+  useEffect(() => {
+    if (titleInputRef.current && titleInputRef.current.value) {
+      // Get current title value
+      const titleValue = titleInputRef.current.value;
+      // Update document title (truncate if too long)
+      document.title = titleValue
+        ? `${
+            titleValue.length > 50
+              ? titleValue.substring(0, 50) + "..."
+              : titleValue
+          } - Swift Note`
+        : "Swift Note";
+    } else {
+      // Reset to default if no title
+      document.title = "Swift Note";
+    }
+  }, [currentNoteId]); // Re-run when note changes
+
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Handle Save shortcut in title field
     if (isSaveShortcut(e)) {
@@ -407,6 +425,19 @@ export function Editor() {
       setTitleEnterPressed(true);
       // The original event listener in EditorContent will handle focusing the editor
     }
+  };
+
+  // Update the title when input changes
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const titleValue = e.target.value;
+    // Update document title (truncate if too long)
+    document.title = titleValue
+      ? `${
+          titleValue.length > 50
+            ? titleValue.substring(0, 50) + "..."
+            : titleValue
+        } - Swift Note`
+      : "Swift Note";
   };
 
   // Function to handle saving note to IndexedDB
@@ -473,85 +504,8 @@ export function Editor() {
           autoFocus
           className="selection:bg-foreground selection:text-background w-full pt-12 px-8 text-4xl font-extrabold bg-transparent border-none outline-none focus:outline-none text-foreground placeholder:text-muted-foreground"
           onKeyDown={handleTitleKeyDown}
+          onChange={handleTitleChange}
         />
-      </div>
-
-      {/* Save status indicator */}
-      <div className="px-8 mt-4 flex justify-end">
-        {saveStatus === "saving" && (
-          <div className="flex items-center text-muted-foreground">
-            <svg
-              className="animate-spin mr-2 h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            <span>Saving...</span>
-          </div>
-        )}
-        {saveStatus === "saved" && (
-          <div className="flex items-center text-green-500">
-            <svg
-              className="h-4 w-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span>Saved</span>
-          </div>
-        )}
-        {saveStatus === "error" && (
-          <div className="flex items-center text-red-500">
-            <svg
-              className="h-4 w-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            <span>Error saving</span>
-          </div>
-        )}
-        <div className="ml-4 text-xs text-muted-foreground">
-          Press{" "}
-          <kbd
-            className={`px-1 py-0.5 bg-muted rounded transition-colors ${
-              keyboardShortcutActive ? "bg-primary text-primary-foreground" : ""
-            }`}
-          >
-            {navigator.platform.toLowerCase().includes("mac") ? "⌘" : "Ctrl"}+S
-          </kbd>{" "}
-          to save
-        </div>
       </div>
 
       {/* Main editor */}
@@ -563,6 +517,75 @@ export function Editor() {
         {/* Store editor reference */}
         <StoreEditorReference editorRef={editorRef} />
       </LexicalComposer>
+
+      {/* Fixed position save status indicator */}
+      {saveStatus !== "idle" && (
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-md bg-green-500/60 dark:bg-green-500/20 z-50 flex items-center justify-center">
+          {saveStatus === "saving" && (
+            <div className="flex items-center text-muted-foreground">
+              <svg
+                className="animate-spin mr-2 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <span>Saving...</span>
+            </div>
+          )}
+          {saveStatus === "saved" && (
+            <div className="flex items-center text-green-800 dark:text-green-500">
+              <svg
+                className="h-4 w-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span>Saved</span>
+            </div>
+          )}
+          {saveStatus === "error" && (
+            <div className="flex items-center text-red-500">
+              <svg
+                className="h-4 w-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span>Error saving</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

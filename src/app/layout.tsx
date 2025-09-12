@@ -11,7 +11,7 @@ import { NotesProvider } from "@/contexts/NotesContext";
 import { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Swift Note Light",
+  title: "Swift Note",
   description: "Notion but fast — really fast",
 };
 
