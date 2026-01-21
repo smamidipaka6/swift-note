@@ -1,6 +1,5 @@
 "use client";
 
-
 import React from "react";
 import { useNotes } from "@/contexts/NotesContext";
 import { NotesService } from "../services/db/notesService";
@@ -12,7 +11,6 @@ interface DocCardProps {
 }
 
 const DocCard = ({ title, content, noteId }: DocCardProps) => {
-  
   const { setSelectedNote, deleteNote } = useNotes();
 
   // Function to handle clicking on a card (for editing)
@@ -40,7 +38,7 @@ const DocCard = ({ title, content, noteId }: DocCardProps) => {
   };
 
   return (
-    <div className="bg-background p-4 border-foreground/10 shadow-sm hover:shadow-md hover:border-foreground/25 transition-all duration-300 ease-in-out h-48 w-64 group">
+    <div className="rounded-xl border bg-muted/40 hover:bg-muted/60 shadow-sm hover:shadow-md hover:ring-1 hover:ring-foreground/10 cursor-pointer p-4 border-border/60 hover:border-border transition-colors duration-200 h-48 w-64 group">
       <div className="flex justify-between items-start">
         <h2 className="text-lg text-card-foreground font-semibold mb-2 truncate flex-grow">
           {title}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -14,7 +14,7 @@ const SearchBar = ({ onSearch, query }: SearchBarProps) => {
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       onSearch(value);
-    }, 300),
+    }, 50),
     [onSearch]
   );
 
@@ -32,7 +32,7 @@ const SearchBar = ({ onSearch, query }: SearchBarProps) => {
         onChange={handleChange}
         placeholder="Search notes..."
         // className="w-full p-2 pl-10 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/25"
-        className = "w-full pl-10 h-10 rounded-lg bg-background border border-foreground/40 px-3 py-2 text-card-foreground placeholder:text-muted-foreground/70 focus:border-foreground/60 focus:outline-none focus:ring-1 focus:ring-foreground/60 focus:bg-card/60"
+        className="w-full pl-10 h-10 rounded-lg bg-background border border-foreground/40 px-3 py-2 text-card-foreground placeholder:text-muted-foreground/70 focus:border-foreground/60 focus:outline-none focus:ring-1 focus:ring-foreground/60 focus:bg-card/60"
       />
       <svg
         className="absolute left-3 top-3 h-5 w-5 text-gray-400"
@@ -58,8 +58,8 @@ function debounce<F extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<F>) => void {
   let timeout: NodeJS.Timeout | null = null;
-  
-  return function(...args: Parameters<F>) {
+
+  return function (...args: Parameters<F>) {
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
