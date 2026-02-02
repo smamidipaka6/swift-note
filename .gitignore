@@ -14,10 +14,6 @@ dist/
 build/
 *.tsbuildinfo
 
-
-# Vercel
-.vercel/
-
 # Environment Variables
 .env
 .env.local
@@ -110,12 +106,15 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 *.prof
 *.trace
 
-# Personal Notes / Docs
-*.mdx  # Optional: ignore docs if auto-generated
-notes/
+# Vercel
+.vercel
 
 # Cursor
 .cursor/
 
-# Vercel
-.vercel
+# Cursor Docs
+cursor-plans/
+
+# Sahit Personal
+drafting.md
+planning.md
