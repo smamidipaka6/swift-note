@@ -8,6 +8,11 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ListItemNode, ListNode } from "@lexical/list";
 import {
+  HeadingNode,
+  $createHeadingNode,
+  HeadingTagType,
+} from "@lexical/rich-text";
+import {
   FORMAT_TEXT_COMMAND,
   COMMAND_PRIORITY_NORMAL,
   KEY_ENTER_COMMAND,
@@ -15,9 +20,11 @@ import {
   $isRangeSelection,
   INDENT_CONTENT_COMMAND,
   OUTDENT_CONTENT_COMMAND,
+  TextNode,
 } from "lexical";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
 import { useEffect, useRef, useState } from "react";
@@ -62,6 +69,12 @@ function ShortcutPlugin() {
       if (event.metaKey && event.shiftKey && event.key === "8") {
         event.preventDefault();
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      }
+
+      // Numbered list shortcut (Cmd+Shift+9)
+      if (event.metaKey && event.shiftKey && event.key === "9") {
+        event.preventDefault();
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
       }
 
       // Handle Tab and Shift+Tab for list indentation
@@ -110,6 +123,136 @@ function ShortcutPlugin() {
   return null;
 }
 
+// Text replacement patterns (add more here in the future)
+const TEXT_REPLACEMENTS: Record<string, string> = {
+  "->": "→",
+  "<-": "←",
+  "--": "—",
+};
+
+function TextReplacementPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    // Register a transform that runs whenever a TextNode changes
+    const removeTransform = editor.registerNodeTransform(TextNode, (node) => {
+      const text = node.getTextContent();
+
+      // Check each replacement pattern
+      for (const [pattern, replacement] of Object.entries(TEXT_REPLACEMENTS)) {
+        const index = text.indexOf(pattern);
+        if (index !== -1) {
+          // Calculate the new text with replacement
+          const newText =
+            text.slice(0, index) +
+            replacement +
+            text.slice(index + pattern.length);
+
+          // Get current selection to preserve cursor position
+          const selection = $getSelection();
+          let cursorOffset: number | null = null;
+
+          if ($isRangeSelection(selection)) {
+            const anchor = selection.anchor;
+            if (anchor.key === node.getKey()) {
+              // Calculate where cursor should be after replacement
+              // If cursor is after the pattern, adjust for the length difference
+              if (anchor.offset > index + pattern.length) {
+                // Cursor is after the replacement - adjust by length difference
+                cursorOffset =
+                  anchor.offset - (pattern.length - replacement.length);
+              } else if (anchor.offset > index) {
+                // Cursor is inside or right after the pattern - move to end of replacement
+                cursorOffset = index + replacement.length;
+              } else {
+                // Cursor is before the pattern - keep same position
+                cursorOffset = anchor.offset;
+              }
+            }
+          }
+
+          // Replace the text
+          node.setTextContent(newText);
+
+          // Restore cursor position
+          if (cursorOffset !== null && $isRangeSelection(selection)) {
+            const newSelection = $getSelection();
+            if ($isRangeSelection(newSelection)) {
+              newSelection.anchor.set(node.getKey(), cursorOffset, "text");
+              newSelection.focus.set(node.getKey(), cursorOffset, "text");
+            }
+          }
+
+          // Only process one replacement per transform to avoid issues
+          break;
+        }
+      }
+    });
+
+    return () => {
+      removeTransform();
+    };
+  }, [editor]);
+
+  return null;
+}
+
+// Heading patterns: "# " -> h1, "## " -> h2, "### " -> h3
+const HEADING_PATTERNS: { pattern: string; tag: HeadingTagType }[] = [
+  { pattern: "### ", tag: "h3" },
+  { pattern: "## ", tag: "h2" },
+  { pattern: "# ", tag: "h1" },
+];
+
+function HeadingShortcutPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    // Listen for text node transforms to detect heading patterns
+    const removeTransform = editor.registerNodeTransform(TextNode, (node) => {
+      const text = node.getTextContent();
+      const parent = node.getParent();
+
+      // Only process if we're in a paragraph (not already a heading or list)
+      if (!parent || parent.getType() !== "paragraph") return;
+
+      // Check each heading pattern (longer patterns first to avoid "# " matching "## ")
+      for (const { pattern, tag } of HEADING_PATTERNS) {
+        if (text.startsWith(pattern)) {
+          // Get the text after the pattern
+          const newText = text.slice(pattern.length);
+
+          // Create a new heading node
+          const headingNode = $createHeadingNode(tag);
+
+          // Create a new text node with the content (without the # prefix)
+          const textNode = new TextNode(newText);
+          headingNode.append(textNode);
+
+          // Replace the paragraph with the heading
+          parent.replace(headingNode);
+
+          // Set cursor to end of the text
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            selection.anchor.set(textNode.getKey(), newText.length, "text");
+            selection.focus.set(textNode.getKey(), newText.length, "text");
+          }
+
+          // Only process one pattern
+          break;
+        }
+      }
+    });
+
+    return () => {
+      removeTransform();
+    };
+  }, [editor]);
+
+  return null;
+}
+
 function LexicalErrorBoundary({ children }: { children: React.ReactNode }) {
   return <div>{children}</div>;
 }
@@ -120,6 +263,11 @@ const editorConfig = {
   theme: {
     // Theme configuration using Tailwind classes
     paragraph: "my-2",
+    heading: {
+      h1: "text-3xl font-bold mt-6 mb-2",
+      h2: "text-2xl font-bold mt-5 mb-2",
+      h3: "text-xl font-semibold mt-4 mb-2",
+    },
     text: {
       bold: "font-bold",
       italic: "italic",
@@ -130,12 +278,12 @@ const editorConfig = {
       nested: {
         listitem: "",
       },
-      ol: "list-decimal list-outside ml-8",
+      ol: "list-outside ml-8 [&>li]:text-lg [&>li>ol]:text-base [&>li:not(:has(ol))]:list-decimal [&>li>ol>li:not(:has(ol))]:list-[lower-alpha] [&>li>ol>li>ol>li:not(:has(ol))]:list-[lower-roman] [&>li>ol>li>ol>li>ol>li:not(:has(ol))]:list-[upper-alpha] [&>li>ol>li>ol>li>ol>li>ol>li]:list-[upper-roman]",
       ul: "list-outside ml-8 [&>li]:text-lg [&>li>ul]:text-base [&>li:not(:has(ul))]:list-big-disc [&>li>ul>li:not(:has(ul))]:list-circle [&>li>ul>li>ul>li:not(:has(ul))]:list-square [&>li>ul>li>ul>li>ul>li]:list-triangle",
       listitem: "relative",
     },
   },
-  nodes: [ListNode, ListItemNode],
+  nodes: [ListNode, ListItemNode, HeadingNode],
 };
 
 function EditorContent({
@@ -182,6 +330,8 @@ function EditorContent({
         <HistoryPlugin />
         <ListPlugin />
         <ShortcutPlugin />
+        <TextReplacementPlugin />
+        <HeadingShortcutPlugin />
       </div>
     </div>
   );

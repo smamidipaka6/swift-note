@@ -115,6 +115,23 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
         <span className="text-base text-foreground ml-4">Bullets</span>
       </div>
 
+      <div className="flex items-center justify-between py-3 border-b border-border">
+        <div className="flex items-center space-x-2">
+          <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
+            {modifierKey}
+          </kbd>
+          <span>+</span>
+          <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
+            Shift
+          </kbd>
+          <span>+</span>
+          <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
+            9
+          </kbd>
+        </div>
+        <span className="text-base text-foreground ml-4">Numbered List</span>
+      </div>
+
       <div className="flex items-center justify-between py-3 border-b border-border ml-10">
         <div className="flex items-center space-x-2">
           <kbd className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm font-mono">
