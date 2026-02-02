@@ -15,6 +15,7 @@ import {
   $isRangeSelection,
   INDENT_CONTENT_COMMAND,
   OUTDENT_CONTENT_COMMAND,
+  TextNode,
 } from "lexical";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
@@ -117,6 +118,80 @@ function ShortcutPlugin() {
   return null;
 }
 
+// Text replacement patterns (add more here in the future)
+const TEXT_REPLACEMENTS: Record<string, string> = {
+  "->": "→",
+  "<-": "←",
+  "--": "—",
+};
+
+function TextReplacementPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    // Register a transform that runs whenever a TextNode changes
+    const removeTransform = editor.registerNodeTransform(TextNode, (node) => {
+      const text = node.getTextContent();
+
+      // Check each replacement pattern
+      for (const [pattern, replacement] of Object.entries(TEXT_REPLACEMENTS)) {
+        const index = text.indexOf(pattern);
+        if (index !== -1) {
+          // Calculate the new text with replacement
+          const newText =
+            text.slice(0, index) +
+            replacement +
+            text.slice(index + pattern.length);
+
+          // Get current selection to preserve cursor position
+          const selection = $getSelection();
+          let cursorOffset: number | null = null;
+
+          if ($isRangeSelection(selection)) {
+            const anchor = selection.anchor;
+            if (anchor.key === node.getKey()) {
+              // Calculate where cursor should be after replacement
+              // If cursor is after the pattern, adjust for the length difference
+              if (anchor.offset > index + pattern.length) {
+                // Cursor is after the replacement - adjust by length difference
+                cursorOffset =
+                  anchor.offset - (pattern.length - replacement.length);
+              } else if (anchor.offset > index) {
+                // Cursor is inside or right after the pattern - move to end of replacement
+                cursorOffset = index + replacement.length;
+              } else {
+                // Cursor is before the pattern - keep same position
+                cursorOffset = anchor.offset;
+              }
+            }
+          }
+
+          // Replace the text
+          node.setTextContent(newText);
+
+          // Restore cursor position
+          if (cursorOffset !== null && $isRangeSelection(selection)) {
+            const newSelection = $getSelection();
+            if ($isRangeSelection(newSelection)) {
+              newSelection.anchor.set(node.getKey(), cursorOffset, "text");
+              newSelection.focus.set(node.getKey(), cursorOffset, "text");
+            }
+          }
+
+          // Only process one replacement per transform to avoid issues
+          break;
+        }
+      }
+    });
+
+    return () => {
+      removeTransform();
+    };
+  }, [editor]);
+
+  return null;
+}
+
 function LexicalErrorBoundary({ children }: { children: React.ReactNode }) {
   return <div>{children}</div>;
 }
@@ -189,6 +264,7 @@ function EditorContent({
         <HistoryPlugin />
         <ListPlugin />
         <ShortcutPlugin />
+        <TextReplacementPlugin />
       </div>
     </div>
   );
