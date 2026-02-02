@@ -8,6 +8,11 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ListItemNode, ListNode } from "@lexical/list";
 import {
+  HeadingNode,
+  $createHeadingNode,
+  HeadingTagType,
+} from "@lexical/rich-text";
+import {
   FORMAT_TEXT_COMMAND,
   COMMAND_PRIORITY_NORMAL,
   KEY_ENTER_COMMAND,
@@ -192,6 +197,62 @@ function TextReplacementPlugin() {
   return null;
 }
 
+// Heading patterns: "# " -> h1, "## " -> h2, "### " -> h3
+const HEADING_PATTERNS: { pattern: string; tag: HeadingTagType }[] = [
+  { pattern: "### ", tag: "h3" },
+  { pattern: "## ", tag: "h2" },
+  { pattern: "# ", tag: "h1" },
+];
+
+function HeadingShortcutPlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    // Listen for text node transforms to detect heading patterns
+    const removeTransform = editor.registerNodeTransform(TextNode, (node) => {
+      const text = node.getTextContent();
+      const parent = node.getParent();
+
+      // Only process if we're in a paragraph (not already a heading or list)
+      if (!parent || parent.getType() !== "paragraph") return;
+
+      // Check each heading pattern (longer patterns first to avoid "# " matching "## ")
+      for (const { pattern, tag } of HEADING_PATTERNS) {
+        if (text.startsWith(pattern)) {
+          // Get the text after the pattern
+          const newText = text.slice(pattern.length);
+
+          // Create a new heading node
+          const headingNode = $createHeadingNode(tag);
+
+          // Create a new text node with the content (without the # prefix)
+          const textNode = new TextNode(newText);
+          headingNode.append(textNode);
+
+          // Replace the paragraph with the heading
+          parent.replace(headingNode);
+
+          // Set cursor to end of the text
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            selection.anchor.set(textNode.getKey(), newText.length, "text");
+            selection.focus.set(textNode.getKey(), newText.length, "text");
+          }
+
+          // Only process one pattern
+          break;
+        }
+      }
+    });
+
+    return () => {
+      removeTransform();
+    };
+  }, [editor]);
+
+  return null;
+}
+
 function LexicalErrorBoundary({ children }: { children: React.ReactNode }) {
   return <div>{children}</div>;
 }
@@ -202,6 +263,11 @@ const editorConfig = {
   theme: {
     // Theme configuration using Tailwind classes
     paragraph: "my-2",
+    heading: {
+      h1: "text-3xl font-bold mt-6 mb-2",
+      h2: "text-2xl font-bold mt-5 mb-2",
+      h3: "text-xl font-semibold mt-4 mb-2",
+    },
     text: {
       bold: "font-bold",
       italic: "italic",
@@ -217,7 +283,7 @@ const editorConfig = {
       listitem: "relative",
     },
   },
-  nodes: [ListNode, ListItemNode],
+  nodes: [ListNode, ListItemNode, HeadingNode],
 };
 
 function EditorContent({
@@ -265,6 +331,7 @@ function EditorContent({
         <ListPlugin />
         <ShortcutPlugin />
         <TextReplacementPlugin />
+        <HeadingShortcutPlugin />
       </div>
     </div>
   );
